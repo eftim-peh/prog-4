@@ -22,7 +22,7 @@ int main(){
         for(int k=1;k<=mesta;k++)
             for(int i=1;i<=mesta;i++)
                 for(int j=1;j<=mesta;j++)
-                    if(mat[i][k]+mat[k][j]<mat[i][j]) mat[i][j]=mat[i][k]+mat[k][j];
+                    if(mat[i][k]+mat[k]/[j]<mat[i][j]) mat[i][j]=mat[i][k]+mat[k][j];
  
         auto vkupno=[&](vector<vector<long long>> &d){
             long long zbir=0;
