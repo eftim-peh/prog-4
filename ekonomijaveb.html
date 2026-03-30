@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8" />
+<title>Амортизациска табела — Банкарски систем</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-blue: #1e3a8a;
+        --accent-blue: #3b82f6;
+        --bg-color: #f8fafc;
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    body { 
+        padding: 40px 15px; 
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; 
+        background-color: var(--bg-color); 
+        color: #1e293b;
+    }
+
+    .sheet { 
+        background: white; 
+        padding: 30px; 
+        border-radius: 12px; 
+        box-shadow: var(--card-shadow); 
+        border: 1px solid #e2e8f0;
+    }
+
+    h2 { 
+        color: var(--primary-blue); 
+        font-weight: 800; 
+        letter-spacing: -0.025em; 
+        margin-bottom: 25px;
+    }
+
+    .grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 30px; 
+    }
+
+    @media (max-width: 992px) {
+        .grid { grid-template-columns: 1fr; }
+    }
+
+    label { 
+        font-weight: 600; 
+        font-size: 0.9rem; 
+        margin-bottom: 6px; 
+        color: #475569;
+    }
+
+    input { 
+        transition: all 0.2s; 
+        border: 1px solid #cbd5e1 !important;
+    }
+
+    input:focus { 
+        border-color: var(--accent-blue) !important; 
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; 
+        outline: none;
+    }
+
+    /* Summary Cards Styling */
+    .summary { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+        gap: 12px; 
+    }
+
+    .summary .card { 
+        padding: 15px; 
+        border-radius: 10px; 
+        background: #ffffff; 
+        border: 1px solid #e2e8f0; 
+        border-left: 4px solid #cbd5e1;
+        transition: transform 0.2s;
+    }
+
+    .summary .card:hover { transform: translateY(-2px); }
+    .card-interest { border-left-color: #ef4444 !important; } /* Red */
+    .card-savings { border-left-color: #22c55e !important; }  /* Green */
+    .card-pmt { border-left-color: var(--accent-blue) !important; }
+
+    .summary .small { 
+        text-transform: uppercase; 
+        font-size: 11px; 
+        font-weight: 700; 
+        color: #64748b; 
+        margin-bottom: 4px;
+    }
+
+    .summary .value { font-weight: 800; font-size: 1.2rem; color: #0f172a; }
+
+    /* Table Styling */
+    .table-container {
+        margin-top: 30px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        max-height: 550px;
+    }
+
+    table { margin-bottom: 0 !important; }
+    thead { 
+        position: sticky; 
+        top: 0; 
+        z-index: 10; 
+        background: #f1f5f9; 
+    }
+
+    table thead th { 
+        background: #f1f5f9; 
+        color: #475569; 
+        font-weight: 700; 
+        font-size: 12px; 
+        text-transform: uppercase;
+        padding: 12px 8px !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+    }
+
+    table tbody td { 
+        vertical-align: middle; 
+        font-size: 13.5px; 
+        padding: 10px 8px !important;
+    }
+
+    .btn-primary { background-color: var(--primary-blue); border: none; padding: 10px 20px; font-weight: 600; }
+    .btn-primary:hover { background-color: #172554; }
+
+</style>
+</head>
+<body>
+
+<div class="sheet container-lg">
+    <h2>Банкарски систем — Амортизација</h2>
+
+    <div class="grid">
+        <div class="pe-lg-3">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Кредит (главница)</label>
+                    <input id="Kredit" type="number" class="form-control" placeholder="0.00">
+                </div>
+                <div class="col-md-6">
+                    <label>Камата (% годишна)</label>
+                    <input id="Kamata" type="number" step="0.01" class="form-control" placeholder="пр. 5.5">
+                </div>
+                <div class="col-md-6">
+                    <label>Време (години)</label>
+                    <input id="Vreme" type="number" class="form-control" placeholder="пр. 10">
+                </div>
+                <div class="col-md-6">
+                    <label>Плаќања годишно (m)</label>
+                    <input id="Vka" type="number" value="12" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label>Почетен датум</label>
+                    <input id="PocetenDatum" type="date" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label>Дополнителна уплата по период</label>
+                    <input id="Extra" type="number" step="0.01" value="0" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label>Еднократна предвремена уплата</label>
+                    <div class="input-group">
+                        <input id="OneTimeExtraAmt" type="number" class="form-control" placeholder="Сума">
+                        <span class="input-group-text">на рата бр.</span>
+                        <input id="OneTimeExtraAt" type="number" class="form-control" placeholder="#">
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls mt-4">
+                <button class="btn btn-primary w-100 mb-2" onclick="generateSchedule()">Пресметај и генерирај</button>
+                <button class="btn btn-outline-secondary w-100" onclick="downloadCSV()">Извези во CSV</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="summary">
+                <div class="card card-pmt">
+                    <div class="small">Месечна рата (PMT)</div>
+                    <div id="PMTdisplay" class="value">-</div>
+                </div>
+                <div class="card">
+                    <div class="small">Планирани плаќања</div>
+                    <div id="Ndisplay" class="value">-</div>
+                </div>
+                <div class="card">
+                    <div class="small">Реални плаќања</div>
+                    <div id="Realdisplay" class="value">-</div>
+                </div>
+                <div class="card">
+                    <div class="small">Предвремено платено</div>
+                    <div id="TotalEarly" class="value">0.00</div>
+                </div>
+                <div class="card card-interest">
+                    <div class="small">Вкупна камата</div>
+                    <div id="TotalInterest" class="value">0.00</div>
+                </div>
+                <div class="card card-savings">
+                    <div class="small">Заштедени години</div>
+                    <div id="SavedYears" class="value">0.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container shadow-sm">
+        <table id="amortTable" class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th class="text-center">бр.</th>
+                    <th>Датум</th>
+                    <th>Почетен баланс</th>
+                    <th>Рата</th>
+                    <th>Екстра</th>
+                    <th>Вкупно</th>
+                    <th>Главница</th>
+                    <th>Камата</th>
+                    <th>Краен баланс</th>
+                    <th>Акум. Камата</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// (Задржи ја твојата логика за JS овде, таа е одлично напишана)
+// Единствена измена во JS за визуелниот дел:
+function formatNumber(x) {
+    return (Math.round((x + 1e-12) * 100) / 100).toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ... останатите функции (generateSchedule, addMonthsToDate, downloadCSV) остануваат исти ...
+// (Ископирај ги од твојот оригинален код)
+</script>
+</body>
+</html>

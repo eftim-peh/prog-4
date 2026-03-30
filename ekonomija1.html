@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8" />
+<title>Калкулатор за Кредити — Банкарски систем</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-blue: #1e3a8a;
+        --accent-blue: #3b82f6;
+        --bg-color: #f8fafc;
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    body { 
+        padding: 60px 15px; 
+        font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+        background-color: var(--bg-color); 
+        color: #1e293b;
+    }
+
+    .sheet { 
+        background: white; 
+        padding: 35px; 
+        border-radius: 16px; 
+        box-shadow: var(--card-shadow); 
+        border: 1px solid #e2e8f0;
+        max-width: 950px;
+        margin: 0 auto;
+    }
+
+    h2 { 
+        color: var(--primary-blue); 
+        font-weight: 800; 
+        letter-spacing: -0.025em; 
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 40px; 
+        align-items: start;
+    }
+
+    @media (max-width: 768px) {
+        .grid { grid-template-columns: 1fr; }
+    }
+
+    label { 
+        font-weight: 600; 
+        font-size: 0.85rem; 
+        margin-bottom: 6px; 
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    input { 
+        padding: 10px 12px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+
+    input:focus { 
+        border-color: var(--accent-blue) !important; 
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    /* Summary Cards */
+    .summary { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 15px; 
+    }
+
+    .summary .card { 
+        padding: 20px; 
+        border-radius: 12px; 
+        background: #ffffff; 
+        border: 1px solid #f1f5f9; 
+        border-bottom: 3px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    .card-pmt { border-bottom-color: var(--accent-blue) !important; background: #f0f7ff !important; }
+    .card-interest { border-bottom-color: #ef4444 !important; }
+    .card-total { border-bottom-color: #64748b !important; }
+
+    .summary .small { 
+        font-size: 11px; 
+        font-weight: 700; 
+        color: #64748b; 
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .summary .value { 
+        font-weight: 800; 
+        font-size: 1.3rem; 
+        color: #0f172a; 
+    }
+
+    .btn-primary { 
+        background-color: var(--primary-blue); 
+        border: none; 
+        padding: 14px; 
+        font-weight: 700; 
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+    <h2>Банкарски калкулатор</h2>
+
+    <div class="grid">
+        <div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Главница</label>
+                    <input id="Kredit" type="number" class="form-control" placeholder="0.00">
+                </div>
+                <div class="col-md-6">
+                    <label>Годишна Камата (%)</label>
+                    <input id="Kamata" type="number" step="0.01" class="form-control" placeholder="пр. 4.5">
+                </div>
+                <div class="col-md-6">
+                    <label>Период (години)</label>
+                    <input id="Vreme" type="number" class="form-control" placeholder="пр. 20">
+                </div>
+                <div class="col-md-6">
+                    <label>Плаќања годишно</label>
+                    <input id="Vka" type="number" value="12" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label>Дополнителна уплата по рата</label>
+                    <input id="Extra" type="number" step="0.01" value="0" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label>Еднократна предвремена уплата</label>
+                    <div class="input-group">
+                        <input id="OneTimeExtraAmt" type="number" class="form-control" placeholder="Сума">
+                        <span class="input-group-text">на рата бр.</span>
+                        <input id="OneTimeExtraAt" type="number" class="form-control" placeholder="#">
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary w-100 shadow-sm" onclick="generateSchedule()">ПРЕСМЕТАЈ</button>
+        </div>
+
+        <div class="summary">
+            <div class="card card-pmt" style="grid-column: span 2;">
+                <div class="small">Месечна рата (PMT)</div>
+                <div id="PMTdisplay" class="value">-</div>
+            </div>
+            <div class="card">
+                <div class="small">Планирани рати</div>
+                <div id="Ndisplay" class="value">-</div>
+            </div>
+            <div class="card">
+                <div class="small">Реални рати</div>
+                <div id="Realdisplay" class="value">-</div>
+            </div>
+            <div class="card card-interest" style="grid-column: span 2;">
+                <div class="small">Вкупна камата за плаќање</div>
+                <div id="TotalInterest" class="value">0.00</div>
+            </div>
+            <div class="card card-total" style="grid-column: span 2;">
+                <div class="small">Вкупно предвремено исплатено</div>
+                <div id="TotalEarly" class="value">0.00</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function formatNumber(x) {
+    return (Math.round((x + 1e-12) * 100) / 100).toLocaleString('mk-MK', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function generateSchedule() {
+    let principal = parseFloat(document.getElementById("Kredit").value) || 0;
+    let annualRate = parseFloat(document.getElementById("Kamata").value) || 0;
+    let years = parseFloat(document.getElementById("Vreme").value) || 0;
+    let m = parseInt(document.getElementById("Vka").value) || 12;
+    let extraPer = parseFloat(document.getElementById("Extra").value) || 0;
+    let oneTimeAmt = parseFloat(document.getElementById("OneTimeExtraAmt").value) || 0;
+    let oneTimeAt = parseInt(document.getElementById("OneTimeExtraAt").value) || 0;
+
+    if (principal <= 0 || years <= 0 || m <= 0) {
+        alert("Внеси валидни податоци");
+        return;
+    }
+
+    const Nplan = Math.round(years * m);
+    const periodRate = annualRate / 100.0 / m;
+
+    let PMT;
+    if (Math.abs(periodRate) < 1e-14) {
+        PMT = principal / Nplan;
+    } else {
+        let pow = Math.pow(1 + periodRate, Nplan);
+        PMT = principal * (periodRate * pow) / (pow - 1);
+    }
+
+    let balance = principal;
+    let cumInterest = 0;
+    let totalEarly = 0;
+    let i = 1;
+
+    while ((balance > 1e-8) && (i <= 10000)) {
+        let interest = balance * periodRate;
+        let extra = extraPer;
+        if (oneTimeAmt > 0 && oneTimeAt === i) extra += oneTimeAmt;
+
+        let totalPayment = PMT + extra;
+
+        if (totalPayment >= balance + interest) {
+            cumInterest += interest;
+            totalEarly += extra;
+            balance = 0;
+            break;
+        } else {
+            let principalPart = totalPayment - interest;
+            balance -= principalPart;
+            cumInterest += interest;
+            totalEarly += extra;
+            i++;
+        }
+    }
+
+    document.getElementById("PMTdisplay").innerText = formatNumber(PMT);
+    document.getElementById("Ndisplay").innerText = Nplan;
+    document.getElementById("Realdisplay").innerText = i;
+    document.getElementById("TotalEarly").innerText = formatNumber(totalEarly);
+    document.getElementById("TotalInterest").innerText = formatNumber(cumInterest);
+}
+</script>
+
+</body>
+</html>
